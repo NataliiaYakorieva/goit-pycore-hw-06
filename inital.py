@@ -51,38 +51,26 @@ class Record:
         self.phones = []
 
     def add_phone(self, phone):
-        try:
-            new_phone = Phone(phone)
-            self.phones.append(new_phone)
-        except ValueError as e:
-            print(f"Couldn't find the phone: {e}")
+        new_phone = Phone(phone)
+        self.phones.append(new_phone)
 
     def remove_phone(self, phone):
-        for phone_obj in self.phones:
-            if phone_obj.value == phone:
-                self.phones.remove(phone_obj)
-                return True
-        print("Phone not found")
-        return False
+        current_phone = self.find_phone(phone)
+        if current_phone is None:
+            raise ValueError("Phone not found")
+        self.phones.remove(current_phone)
 
     def edit_phone(self, old_phone, new_phone):
-        for phone_obj in self.phones:
-            if phone_obj.value == old_phone:
-                try:
-                    validated_phone = Phone(new_phone)
-                    phone_obj.value = validated_phone.value
-                    return True
-                except ValueError as e:
-                    print(f"Couldn't find the phone: {e}")
-                    return False
-        print("Phone not found")
-        return False
+        current_phone = self.find_phone(old_phone)
+        if current_phone is None:
+            raise ValueError("Phone not found")
+        validated_phone = Phone(new_phone)
+        current_phone.value = validated_phone.value
 
     def find_phone(self, phone):
         for phone_obj in self.phones:
             if phone_obj.value == phone:
                 return phone_obj
-        print("Phone not found")
         return None
 
     def __str__(self):
@@ -106,10 +94,10 @@ class AddressBook(UserDict):
         return self.data.get(name)
 
     def delete(self, name):
-        if name in self.data:
-            del self.data[name]
-        else:
-            print("Record not found")
+        record = self.find(name)
+        if record is None:
+            raise KeyError("Record not found")
+        del self.data[name]
 
     def __str__(self):
         return '\n'.join(str(contact) for contact in self.data.values())
@@ -152,7 +140,7 @@ if __name__ == "__main__":
     found_phone = john.find_phone("5555555555")
     print(
         f"\nSearching for phone number in John: {
-        found_phone.value if found_phone else 'Not found'}")
+            found_phone.value if found_phone else 'Not found'}")
     # Output: 5555555555
 
     # Delete Jane's record
